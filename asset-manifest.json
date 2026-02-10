@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/gradegoal/static/css/main.0db75e4d.css",
-    "main.js": "/gradegoal/static/js/main.ff82f5f8.js",
+    "main.css": "/gradegoal/static/css/main.87fbc7d1.css",
+    "main.js": "/gradegoal/static/js/main.8c432e7b.js",
     "index.html": "/gradegoal/index.html",
-    "main.0db75e4d.css.map": "/gradegoal/static/css/main.0db75e4d.css.map",
-    "main.ff82f5f8.js.map": "/gradegoal/static/js/main.ff82f5f8.js.map"
+    "main.87fbc7d1.css.map": "/gradegoal/static/css/main.87fbc7d1.css.map",
+    "main.8c432e7b.js.map": "/gradegoal/static/js/main.8c432e7b.js.map"
   },
   "entrypoints": [
-    "static/css/main.0db75e4d.css",
-    "static/js/main.ff82f5f8.js"
+    "static/css/main.87fbc7d1.css",
+    "static/js/main.8c432e7b.js"
   ]
 }
