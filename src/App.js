@@ -76,6 +76,24 @@ export default function GradeGoal() {
     if (saved) {
       try {
         const data = JSON.parse(saved);
+        
+        // Migration function: convert old 'weight' to new 'credits'
+        const migrateModule = (module) => {
+          if (!module.credits && module.weight) {
+            // Old format: module.weight was percentage (0-100)
+            // New format: module.credits should be credits (0-60 per semester)
+            // Convert: if weight was 33.33%, that's ~20 credits (33.33% of 60 = 20)
+            const weight = parseFloat(module.weight) || 0;
+            const credits = Math.round((weight / 100) * 60);
+            return { ...module, credits: credits.toString(), weight: undefined };
+          }
+          return module;
+        };
+        
+        const migrateSemester = (semester) => {
+          return semester.map(migrateModule);
+        };
+        
         setTargetScore(data.targetScore || '70');
         setYear1Weight(data.year1Weight || '0');
         setYear2Weight(data.year2Weight || '40');
@@ -86,12 +104,12 @@ export default function GradeGoal() {
         setYear2Sem2Weight(data.year2sem2Weight || '50');
         setYear3Sem1Weight(data.year3sem1Weight || '50');
         setYear3Sem2Weight(data.year3sem2Weight || '50');
-        setYear1Sem1(data.year1sem1 || [emptyModule(), emptyModule(), emptyModule()]);
-        setYear1Sem2(data.year1sem2 || [emptyModule(), emptyModule(), emptyModule()]);
-        setYear2Sem1(data.year2sem1 || [emptyModule(), emptyModule(), emptyModule()]);
-        setYear2Sem2(data.year2sem2 || [emptyModule(), emptyModule(), emptyModule()]);
-        setYear3Sem1(data.year3sem1 || [emptyModule(), emptyModule(), emptyModule()]);
-        setYear3Sem2(data.year3sem2 || [emptyModule(), emptyModule(), emptyModule()]);
+        setYear1Sem1(migrateSemester(data.year1sem1 || [emptyModule(), emptyModule(), emptyModule()]));
+        setYear1Sem2(migrateSemester(data.year1sem2 || [emptyModule(), emptyModule(), emptyModule()]));
+        setYear2Sem1(migrateSemester(data.year2sem1 || [emptyModule(), emptyModule(), emptyModule()]));
+        setYear2Sem2(migrateSemester(data.year2sem2 || [emptyModule(), emptyModule(), emptyModule()]));
+        setYear3Sem1(migrateSemester(data.year3sem1 || [emptyModule(), emptyModule(), emptyModule()]));
+        setYear3Sem2(migrateSemester(data.year3sem2 || [emptyModule(), emptyModule(), emptyModule()]));
       } catch (e) {
         console.error('Error loading saved data:', e);
       }
@@ -330,13 +348,14 @@ export default function GradeGoal() {
     const target = parseFloat(targetScore) || 0;
     const required = ((target - filledScore) / unfilledWeight) * 100;
     
-    if (required < 0) return null;
+    if (required < 0 || !isFinite(required)) return null;
     return required;
   };
 
   // For semester - check if it has blanks, calculate what they need to get THIS SEMESTER to target
   const getSemesterRequiredScore = (modules) => {
     let hasEmpty = false;
+    let hasData = false;  // Track if there's any actual data entered
     let semesterFilledScore = 0;
     let semesterUnfilledWeight = 0;
     let totalModuleCredits = 0;
@@ -352,6 +371,8 @@ export default function GradeGoal() {
         const weight = parseFloat(assessment.weight) || 0;
         const score = parseFloat(assessment.score);
         
+        if (weight > 0) hasData = true;  // There's actual data if any assessment has weight
+        
         if (score !== '' && !isNaN(score)) {
           moduleFilledScore += (score * weight / 100);
         } else {
@@ -365,19 +386,20 @@ export default function GradeGoal() {
       semesterUnfilledWeight += (moduleUnfilledWeight / 100) * (moduleWeight / 100);
     });
     
-    // Don't show if module credits aren't valid or no blanks (60 credits per semester)
-    if (!hasEmpty || Math.abs(totalModuleCredits - 60) >= 0.5) return null;
+    // Don't show if module credits aren't valid, no blanks, or no data entered
+    if (!hasEmpty || !hasData || Math.abs(totalModuleCredits - 60) >= 0.5) return null;
     
     const target = parseFloat(targetScore) || 0;
     const required = (target - semesterFilledScore) / semesterUnfilledWeight;
     
-    if (required < 0) return null;
+    if (required < 0 || !isFinite(required)) return null;
     return required;
   };
 
   // For year - check if it has blanks, calculate what they need to get THIS YEAR to target
   const getYearRequiredScore = (sem1Modules, sem2Modules, sem1Weight, sem2Weight) => {
     let hasEmpty = false;
+    let hasData = false;  // Track if there's any actual data entered
     let yearFilledScore = 0;
     let yearUnfilledWeight = 0;
     
@@ -394,6 +416,8 @@ export default function GradeGoal() {
         module.assessments.forEach(assessment => {
           const weight = parseFloat(assessment.weight) || 0;
           const score = parseFloat(assessment.score);
+          
+          if (weight > 0) hasData = true;  // There's actual data if any assessment has weight
           
           if (score !== '' && !isNaN(score)) {
             moduleFilledScore += (score * weight / 100);
@@ -415,12 +439,13 @@ export default function GradeGoal() {
     processSemester(sem1Modules, sem1Weight);
     processSemester(sem2Modules, sem2Weight);
     
-    if (!hasEmpty) return null;
+    // Don't show if no empty fields OR no data entered at all
+    if (!hasEmpty || !hasData) return null;
     
     const target = parseFloat(targetScore) || 0;
     const required = (target - yearFilledScore) / yearUnfilledWeight;
     
-    if (required < 0) return null;
+    if (required < 0 || !isFinite(required)) return null;
     return required;
   };
 
