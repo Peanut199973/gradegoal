@@ -187,13 +187,13 @@ export default function GradeGoal() {
     modules.forEach(module => {
       let moduleCredits = parseFloat(module.credits) || 0;
       
-      // If no credits entered anywhere, assume equal distribution
+      // If no credits entered anywhere, assume equal distribution (60 credits per semester)
       if (enteredCredits === 0 && modules.length > 0) {
-        moduleCredits = 120 / modules.length;
+        moduleCredits = 60 / modules.length;
       }
       
       const moduleScore = calculateModuleScore(module);
-      const moduleWeight = (moduleCredits / 120) * 100; // Convert credits to %
+      const moduleWeight = (moduleCredits / 60) * 100; // Convert credits to % (60 per semester)
       totalCredits += moduleCredits;
       weightedScore += (moduleScore * moduleWeight / 100);
     });
@@ -237,6 +237,7 @@ export default function GradeGoal() {
 
   const calculateRequiredScore = () => {
     const target = parseFloat(targetScore) || 0;
+    const y1w = parseFloat(year1Weight) || 0;
     const y2w = parseFloat(year2Weight) || 0;
     const y3w = parseFloat(year3Weight) || 0;
     
@@ -264,6 +265,8 @@ export default function GradeGoal() {
     let totalUnfilledWeight = 0;
     
     const allSemesters = [
+      { modules: year1sem1, semWeight: parseFloat(year1sem1Weight) || 0, yearWeight: y1w },
+      { modules: year1sem2, semWeight: parseFloat(year1sem2Weight) || 0, yearWeight: y1w },
       { modules: year2sem1, semWeight: parseFloat(year2sem1Weight) || 0, yearWeight: y2w },
       { modules: year2sem2, semWeight: parseFloat(year2sem2Weight) || 0, yearWeight: y2w },
       { modules: year3sem1, semWeight: parseFloat(year3sem1Weight) || 0, yearWeight: y3w },
@@ -272,10 +275,11 @@ export default function GradeGoal() {
     
     allSemesters.forEach(sem => {
       sem.modules.forEach(module => {
-        const moduleWeight = parseFloat(module.weight) || 0;
+        const moduleCredits = parseFloat(module.credits) || 0;
+        const moduleWeight = (moduleCredits / 60) * 100;  // Convert credits to percentage of semester
         const stats = getModuleStats(module);
         
-        if (moduleWeight > 0) {
+        if (moduleCredits > 0) {
           const filledContribution = stats.filledWeightedScore * (moduleWeight / 100) * (sem.semWeight / 100) * (sem.yearWeight / 100);
           totalFilledContribution += filledContribution;
           
@@ -335,11 +339,12 @@ export default function GradeGoal() {
     let hasEmpty = false;
     let semesterFilledScore = 0;
     let semesterUnfilledWeight = 0;
-    let totalModuleWeight = 0;
+    let totalModuleCredits = 0;
     
     modules.forEach(module => {
-      const moduleWeight = parseFloat(module.weight) || 0;
-      totalModuleWeight += moduleWeight;
+      const moduleCredits = parseFloat(module.credits) || 0;
+      totalModuleCredits += moduleCredits;
+      const moduleWeight = (moduleCredits / 60) * 100;  // Convert credits to percentage
       let moduleFilledScore = 0;
       let moduleUnfilledWeight = 0;
       
@@ -360,8 +365,8 @@ export default function GradeGoal() {
       semesterUnfilledWeight += (moduleUnfilledWeight / 100) * (moduleWeight / 100);
     });
     
-    // Don't show if module weights aren't valid or no blanks
-    if (!hasEmpty || Math.abs(totalModuleWeight - 100) >= 0.5) return null;
+    // Don't show if module credits aren't valid or no blanks (60 credits per semester)
+    if (!hasEmpty || Math.abs(totalModuleCredits - 60) >= 0.5) return null;
     
     const target = parseFloat(targetScore) || 0;
     const required = (target - semesterFilledScore) / semesterUnfilledWeight;
@@ -381,7 +386,8 @@ export default function GradeGoal() {
       let semesterUnfilledWeight = 0;
       
       modules.forEach(module => {
-        const moduleWeight = parseFloat(module.weight) || 0;
+        const moduleCredits = parseFloat(module.credits) || 0;
+        const moduleWeight = (moduleCredits / 60) * 100;  // Convert credits to percentage
         let moduleFilledScore = 0;
         let moduleUnfilledWeight = 0;
         
@@ -532,7 +538,7 @@ export default function GradeGoal() {
   const renderSemester = (modules, setter, semesterName, semWeight, yearWeight) => {
     const semScore = calculateSemesterScore(modules);
     const moduleCreditsTotal = getModuleCreditsTotal(modules);
-    const isModuleCreditsValid = Math.abs(moduleCreditsTotal - 120) < 0.5;
+    const isModuleCreditsValid = Math.abs(moduleCreditsTotal - 60) < 0.5;  // 60 credits per semester
     
     // Check if all modules have valid assessment weights
     const allModulesHaveValidWeights = modules.every(module => {
@@ -570,7 +576,7 @@ export default function GradeGoal() {
           )}
           {!isModuleCreditsValid && (
             <div className="text-sm font-medium text-red-600">
-              ⚠ Module credits: {moduleCreditsTotal.toFixed(0)} (should be 120)
+              ⚠ Module credits: {moduleCreditsTotal.toFixed(0)} (should be 60)
             </div>
           )}
         </div>
@@ -588,27 +594,50 @@ export default function GradeGoal() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 md:p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-3 md:p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Calculator className="text-indigo-600" size={32} />
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <Calculator className="text-indigo-600" size={36} />
+            <div>
               <h1 className="text-3xl font-bold text-gray-800">GradeGoal</h1>
-            </div>
-            <p className="text-sm text-gray-600 ml-11">University Grade Calculator. Calculate your required scores to achieve your target degree classification.</p>
-            <div className="text-xs text-gray-500 ml-11 mt-1 flex flex-wrap gap-3">
-              <span>70%+ = First Class</span>
-              <span>60-69% = 2:1</span>
-              <span>50-59% = 2:2</span>
-              <span>40-49% = Third Class</span>
-              <span>&lt;40% = Fail</span>
+              <p className="text-sm text-gray-600">Calculate your required scores to achieve your target degree classification</p>
             </div>
           </div>
-          <button
-            onClick={clearForm}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md border border-gray-300"
-          >
-            Clear Form
-          </button>
+          
+          {/* UK Degree Classification Table */}
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200">
+            <h3 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">UK Degree Classifications</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+              <div className="bg-white rounded px-3 py-2 text-center border border-indigo-100">
+                <div className="font-bold text-indigo-600">First Class</div>
+                <div className="text-gray-600">70% +</div>
+              </div>
+              <div className="bg-white rounded px-3 py-2 text-center border border-indigo-100">
+                <div className="font-bold text-indigo-600">Upper Second (2:1)</div>
+                <div className="text-gray-600">60-69%</div>
+              </div>
+              <div className="bg-white rounded px-3 py-2 text-center border border-indigo-100">
+                <div className="font-bold text-indigo-600">Lower Second (2:2)</div>
+                <div className="text-gray-600">50-59%</div>
+              </div>
+              <div className="bg-white rounded px-3 py-2 text-center border border-indigo-100">
+                <div className="font-bold text-indigo-600">Third Class</div>
+                <div className="text-gray-600">40-49%</div>
+              </div>
+              <div className="bg-white rounded px-3 py-2 text-center border border-indigo-100">
+                <div className="font-bold text-red-600">Fail</div>
+                <div className="text-gray-600">&lt;40%</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-end mt-3">
+            <button
+              onClick={clearForm}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300 shadow-sm"
+            >
+              Clear All Data
+            </button>
+          </div>
         </div>
 
         {/* Target and Year Weights */}
@@ -765,8 +794,8 @@ export default function GradeGoal() {
             const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
             // Also check if modules within semesters have valid weights
             const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-            const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 120) < 0.5;
-            const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 120) < 0.5;
+            const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 60) < 0.5;
+            const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 60) < 0.5;
             const areModuleWeightsValid = year2sem1ModulesValid && year2sem2ModulesValid;
             
             return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
@@ -833,8 +862,8 @@ export default function GradeGoal() {
             const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
             // Also check if modules within semesters have valid weights
             const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-            const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 120) < 0.5;
-            const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 120) < 0.5;
+            const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 60) < 0.5;
+            const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 60) < 0.5;
             const areModuleWeightsValid = year3sem1ModulesValid && year3sem2ModulesValid;
             
             return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
@@ -888,13 +917,16 @@ export default function GradeGoal() {
                   {(() => {
                     // Additional checks for "not achievable" message
                     const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-                    const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 120) < 0.5;
-                    const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 120) < 0.5;
-                    const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 120) < 0.5;
-                    const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 120) < 0.5;
+                    const year1sem1ModulesValid = year1sem1.length === 0 || Math.abs(getModuleCreditsTotal(year1sem1) - 60) < 0.5;
+                    const year1sem2ModulesValid = year1sem2.length === 0 || Math.abs(getModuleCreditsTotal(year1sem2) - 60) < 0.5;
+                    const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 60) < 0.5;
+                    const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 60) < 0.5;
+                    const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 60) < 0.5;
+                    const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 60) < 0.5;
                     
                     const hasData = overallScore > 0;
-                    const structureComplete = year2sem1ModulesValid && year2sem2ModulesValid && 
+                    const structureComplete = year1sem1ModulesValid && year1sem2ModulesValid &&
+                                             year2sem1ModulesValid && year2sem2ModulesValid && 
                                              year3sem1ModulesValid && year3sem2ModulesValid && hasData;
                     
                     if (requiredScore > 100 && structureComplete) {
