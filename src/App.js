@@ -626,12 +626,20 @@ export default function GradeGoal() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 md:p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-3 md:p-6">
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-3">
-            <Calculator className="text-indigo-600" size={36} />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">GradeGoal</h1>
-              <p className="text-sm text-gray-600">Calculate your required scores to achieve your target degree classification</p>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Calculator className="text-indigo-600" size={36} />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">GradeGoal</h1>
+                <p className="text-sm text-gray-600">Calculate your required scores to achieve your target degree classification</p>
+              </div>
             </div>
+            <button
+              onClick={clearForm}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300 shadow-sm"
+            >
+              Clear All Data
+            </button>
           </div>
           
           {/* UK Degree Classification Table */}
@@ -660,19 +668,10 @@ export default function GradeGoal() {
               </div>
             </div>
           </div>
-          
-          <div className="flex justify-end mt-3">
-            <button
-              onClick={clearForm}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300 shadow-sm"
-            >
-              Clear All Data
-            </button>
-          </div>
         </div>
 
         {/* Target and Year Weights */}
-        <div className="bg-indigo-50 p-4 rounded-lg mb-6">
+        <div className="bg-indigo-50 p-4 rounded-lg mb-6 border border-indigo-200">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Target Overall %</label>
@@ -833,9 +832,6 @@ export default function GradeGoal() {
                 <div>{renderSemester(year2sem2, setYear2Sem2, 'Semester 2', year2sem2Weight, year2Weight)}</div>
               </div>
               
-              <div className="text-right text-lg font-bold text-indigo-600 mt-2">
-                Year 2 Score: {year2Score.toFixed(1)}%
-              </div>
               {(() => {
                 const yearRequired = getYearRequiredScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
                 const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
@@ -860,6 +856,10 @@ export default function GradeGoal() {
               })()}
             </>
           )}
+          
+          <div className="text-right text-lg font-bold text-indigo-600 mt-2">
+            Year 2 Score: {year2Score.toFixed(1)}%
+          </div>
         </div>
 
         {/* Year 3 */}
@@ -910,9 +910,6 @@ export default function GradeGoal() {
                 <div>{renderSemester(year3sem2, setYear3Sem2, 'Semester 2', year3sem2Weight, year3Weight)}</div>
               </div>
               
-              <div className="text-right text-lg font-bold text-indigo-600 mt-2">
-                Year 3 Score: {year3Score.toFixed(1)}%
-              </div>
               {(() => {
                 const yearRequired = getYearRequiredScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
                 const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
@@ -937,6 +934,10 @@ export default function GradeGoal() {
               })()}
             </>
           )}
+          
+          <div className="text-right text-lg font-bold text-indigo-600 mt-2">
+            Year 3 Score: {year3Score.toFixed(1)}%
+          </div>
         </div>
 
         {/* Overall Results */}
