@@ -502,7 +502,7 @@ export default function GradeGoal() {
               <div className="flex items-center gap-1">
                 <input
                   type="number"
-                  placeholder="% of module"
+                  placeholder="%"
                   value={assessment.weight}
                   onChange={(e) => updateAssessment(setter, modules, moduleIdx, assessmentIdx, 'weight', e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -831,35 +831,34 @@ export default function GradeGoal() {
                 <div>{renderSemester(year2sem1, setYear2Sem1, 'Semester 1', year2sem1Weight, year2Weight)}</div>
                 <div>{renderSemester(year2sem2, setYear2Sem2, 'Semester 2', year2sem2Weight, year2Weight)}</div>
               </div>
-              
-              {(() => {
-                const yearRequired = getYearRequiredScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
-                const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
-                // Also check if modules within semesters have valid weights
-                const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-                const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 60) < 0.5;
-                const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 60) < 0.5;
-                const areModuleWeightsValid = year2sem1ModulesValid && year2sem2ModulesValid;
-                
-                return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
-                  <div className="text-right text-sm font-medium text-green-600">
-                    {yearRequired > 100 ? (
-                      <span className="text-red-600">Target no longer achievable for this year</span>
-                    ) : (
-                      <>Need {(() => {
-                        if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
-                        return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
-                      })()}% average in remaining assessments</>
-                    )}
-                  </div>
-                );
-              })()}
             </>
           )}
           
           <div className="text-right text-lg font-bold text-indigo-600 mt-2">
             Year 2 Score: {year2Score.toFixed(1)}%
           </div>
+          {(() => {
+            const yearRequired = getYearRequiredScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
+            const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
+            // Also check if modules within semesters have valid weights
+            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+            const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 60) < 0.5;
+            const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 60) < 0.5;
+            const areModuleWeightsValid = year2sem1ModulesValid && year2sem2ModulesValid;
+            
+            return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
+              <div className="text-right text-sm font-medium text-green-600">
+                {yearRequired > 100 ? (
+                  <span className="text-red-600">Target no longer achievable for this year</span>
+                ) : (
+                  <>Need {(() => {
+                    if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
+                    return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
+                  })()}% average in remaining assessments</>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Year 3 */}
@@ -909,35 +908,34 @@ export default function GradeGoal() {
                 <div>{renderSemester(year3sem1, setYear3Sem1, 'Semester 1', year3sem1Weight, year3Weight)}</div>
                 <div>{renderSemester(year3sem2, setYear3Sem2, 'Semester 2', year3sem2Weight, year3Weight)}</div>
               </div>
-              
-              {(() => {
-                const yearRequired = getYearRequiredScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
-                const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
-                // Also check if modules within semesters have valid weights
-                const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-                const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 60) < 0.5;
-                const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 60) < 0.5;
-                const areModuleWeightsValid = year3sem1ModulesValid && year3sem2ModulesValid;
-                
-                return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
-                  <div className="text-right text-sm font-medium text-green-600">
-                    {yearRequired > 100 ? (
-                      <span className="text-red-600">Target no longer achievable for this year</span>
-                    ) : (
-                      <>Need {(() => {
-                        if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
-                        return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
-                      })()}% average in remaining assessments</>
-                    )}
-                  </div>
-                );
-              })()}
             </>
           )}
           
           <div className="text-right text-lg font-bold text-indigo-600 mt-2">
             Year 3 Score: {year3Score.toFixed(1)}%
           </div>
+          {(() => {
+            const yearRequired = getYearRequiredScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
+            const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
+            // Also check if modules within semesters have valid weights
+            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+            const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 60) < 0.5;
+            const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 60) < 0.5;
+            const areModuleWeightsValid = year3sem1ModulesValid && year3sem2ModulesValid;
+            
+            return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
+              <div className="text-right text-sm font-medium text-green-600">
+                {yearRequired > 100 ? (
+                  <span className="text-red-600">Target no longer achievable for this year</span>
+                ) : (
+                  <>Need {(() => {
+                    if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
+                    return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
+                  })()}% average in remaining assessments</>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Overall Results */}
