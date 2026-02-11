@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calculator, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function GradeGoal() {
-  const emptyAssessment = () => ({ name: '', weight: '', score: '' });
+  const emptyAssessment = () => ({ name: '', weight: '50', score: '' });
   const emptyModule = () => ({ 
     name: '', 
     credits: '20',  // Changed from weight to credits, default 20
@@ -466,16 +466,19 @@ export default function GradeGoal() {
             onKeyDown={handleKeyDown}
             className="flex-1 px-2 py-1 border rounded text-sm"
           />
-          <input
-            type="number"
-            placeholder="Credits"
-            value={module.credits}
-            onChange={(e) => updateModule(setter, modules, moduleIdx, 'credits', e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="w-24 px-2 py-1 border rounded text-sm"
-            min="0"
-            max="120"
-          />
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              placeholder="Credits"
+              value={module.credits}
+              onChange={(e) => updateModule(setter, modules, moduleIdx, 'credits', e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-20 px-2 py-1 border rounded text-sm"
+              min="0"
+              max="120"
+            />
+            <span className="text-xs text-gray-600">credits</span>
+          </div>
           <button
             onClick={() => removeModule(setter, modules, moduleIdx)}
             className="p-1 text-gray-500 hover:bg-gray-100 rounded"
@@ -496,16 +499,19 @@ export default function GradeGoal() {
                 onKeyDown={handleKeyDown}
                 className="flex-1 px-2 py-1 border rounded text-xs bg-white"
               />
-              <input
-                type="number"
-                placeholder="% of module"
-                value={assessment.weight}
-                onChange={(e) => updateAssessment(setter, modules, moduleIdx, assessmentIdx, 'weight', e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-24 px-2 py-1 border rounded text-xs bg-white"
-                min="0"
-                max="100"
-              />
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  placeholder="% of module"
+                  value={assessment.weight}
+                  onChange={(e) => updateAssessment(setter, modules, moduleIdx, assessmentIdx, 'weight', e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-16 px-2 py-1 border rounded text-xs bg-white"
+                  min="0"
+                  max="100"
+                />
+                <span className="text-xs text-gray-600">%</span>
+              </div>
               <input
                 type="number"
                 placeholder="Score"
@@ -726,44 +732,53 @@ export default function GradeGoal() {
 
         {/* Year 1 */}
         <div className="border border-gray-300 rounded-lg p-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Year 1</h2>
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setYear1Collapsed(!year1Collapsed)}>
+            <h2 className="text-2xl font-bold text-gray-800">Year 1</h2>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              {year1Collapsed ? <ChevronDown size={24} className="text-gray-600" /> : <ChevronUp size={24} className="text-gray-600" />}
+            </button>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
-              <input
-                type="number"
-                value={year1sem1Weight}
-                onChange={(e) => setYear1Sem1Weight(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border rounded-md"
-                min="0"
-                max="100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
-              <input
-                type="number"
-                value={year1sem2Weight}
-                onChange={(e) => setYear1Sem2Weight(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border rounded-md"
-                min="0"
-                max="100"
-              />
-            </div>
-          </div>
-          {Math.abs(getSemesterWeightTotal(year1sem1Weight, year1sem2Weight) - 100) >= 0.5 && (
-            <div className="mb-3 text-sm font-medium text-red-600">
-              ⚠ Semester weights total: {getSemesterWeightTotal(year1sem1Weight, year1sem2Weight)}% (should be 100%)
-            </div>
-          )}
+          {!year1Collapsed && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
+                  <input
+                    type="number"
+                    value={year1sem1Weight}
+                    onChange={(e) => setYear1Sem1Weight(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 border rounded-md"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
+                  <input
+                    type="number"
+                    value={year1sem2Weight}
+                    onChange={(e) => setYear1Sem2Weight(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 border rounded-md"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+              </div>
+              {Math.abs(getSemesterWeightTotal(year1sem1Weight, year1sem2Weight) - 100) >= 0.5 && (
+                <div className="mb-3 text-sm font-medium text-red-600">
+                  ⚠ Semester weights total: {getSemesterWeightTotal(year1sem1Weight, year1sem2Weight)}% (should be 100%)
+                </div>
+              )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>{renderSemester(year1sem1, setYear1Sem1, 'Semester 1', year1sem1Weight, year1Weight)}</div>
-            <div>{renderSemester(year1sem2, setYear1Sem2, 'Semester 2', year1sem2Weight, year1Weight)}</div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>{renderSemester(year1sem1, setYear1Sem1, 'Semester 1', year1sem1Weight, year1Weight)}</div>
+                <div>{renderSemester(year1sem2, setYear1Sem2, 'Semester 2', year1sem2Weight, year1Weight)}</div>
+              </div>
+            </>
+          )}
           
           <div className="text-right text-lg font-bold text-indigo-600 mt-2">
             Year 1 Score: {calculateYearScore(year1sem1, year1sem2, year1sem1Weight, year1sem2Weight).toFixed(1)}%
@@ -772,138 +787,156 @@ export default function GradeGoal() {
 
         {/* Year 2 */}
         <div className="border border-gray-300 rounded-lg p-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Year 2</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
-              <input
-                type="number"
-                value={year2sem1Weight}
-                onChange={(e) => setYear2Sem1Weight(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border rounded-md"
-                min="0"
-                max="100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
-              <input
-                type="number"
-                value={year2sem2Weight}
-                onChange={(e) => setYear2Sem2Weight(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border rounded-md"
-                min="0"
-                max="100"
-              />
-            </div>
-          </div>
-          {Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) >= 0.5 && (
-            <div className="mb-3 text-sm font-medium text-red-600">
-              ⚠ Semester weights total: {getSemesterWeightTotal(year2sem1Weight, year2sem2Weight)}% (should be 100%)
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>{renderSemester(year2sem1, setYear2Sem1, 'Semester 1', year2sem1Weight, year2Weight)}</div>
-            <div>{renderSemester(year2sem2, setYear2Sem2, 'Semester 2', year2sem2Weight, year2Weight)}</div>
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setYear2Collapsed(!year2Collapsed)}>
+            <h2 className="text-2xl font-bold text-gray-800">Year 2</h2>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              {year2Collapsed ? <ChevronDown size={24} className="text-gray-600" /> : <ChevronUp size={24} className="text-gray-600" />}
+            </button>
           </div>
           
-          <div className="text-right text-lg font-bold text-indigo-600 mt-2">
-            Year 2 Score: {year2Score.toFixed(1)}%
-          </div>
-          {(() => {
-            const yearRequired = getYearRequiredScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
-            const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
-            // Also check if modules within semesters have valid weights
-            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-            const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 60) < 0.5;
-            const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 60) < 0.5;
-            const areModuleWeightsValid = year2sem1ModulesValid && year2sem2ModulesValid;
-            
-            return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
-              <div className="text-right text-sm font-medium text-green-600">
-                {yearRequired > 100 ? (
-                  <span className="text-red-600">Target no longer achievable for this year</span>
-                ) : (
-                  <>Need {(() => {
-                    if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
-                    return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
-                  })()}% average in remaining assessments</>
-                )}
+          {!year2Collapsed && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
+                  <input
+                    type="number"
+                    value={year2sem1Weight}
+                    onChange={(e) => setYear2Sem1Weight(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 border rounded-md"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
+                  <input
+                    type="number"
+                    value={year2sem2Weight}
+                    onChange={(e) => setYear2Sem2Weight(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 border rounded-md"
+                    min="0"
+                    max="100"
+                  />
+                </div>
               </div>
-            );
-          })()}
+              {Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) >= 0.5 && (
+                <div className="mb-3 text-sm font-medium text-red-600">
+                  ⚠ Semester weights total: {getSemesterWeightTotal(year2sem1Weight, year2sem2Weight)}% (should be 100%)
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>{renderSemester(year2sem1, setYear2Sem1, 'Semester 1', year2sem1Weight, year2Weight)}</div>
+                <div>{renderSemester(year2sem2, setYear2Sem2, 'Semester 2', year2sem2Weight, year2Weight)}</div>
+              </div>
+              
+              <div className="text-right text-lg font-bold text-indigo-600 mt-2">
+                Year 2 Score: {year2Score.toFixed(1)}%
+              </div>
+              {(() => {
+                const yearRequired = getYearRequiredScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
+                const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
+                // Also check if modules within semesters have valid weights
+                const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+                const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 60) < 0.5;
+                const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 60) < 0.5;
+                const areModuleWeightsValid = year2sem1ModulesValid && year2sem2ModulesValid;
+                
+                return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
+                  <div className="text-right text-sm font-medium text-green-600">
+                    {yearRequired > 100 ? (
+                      <span className="text-red-600">Target no longer achievable for this year</span>
+                    ) : (
+                      <>Need {(() => {
+                        if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
+                        return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
+                      })()}% average in remaining assessments</>
+                    )}
+                  </div>
+                );
+              })()}
+            </>
+          )}
         </div>
 
         {/* Year 3 */}
         <div className="border border-gray-300 rounded-lg p-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Year 3</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
-              <input
-                type="number"
-                value={year3sem1Weight}
-                onChange={(e) => setYear3Sem1Weight(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border rounded-md"
-                min="0"
-                max="100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
-              <input
-                type="number"
-                value={year3sem2Weight}
-                onChange={(e) => setYear3Sem2Weight(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border rounded-md"
-                min="0"
-                max="100"
-              />
-            </div>
-          </div>
-          {Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) >= 0.5 && (
-            <div className="mb-3 text-sm font-medium text-red-600">
-              ⚠ Semester weights total: {getSemesterWeightTotal(year3sem1Weight, year3sem2Weight)}% (should be 100%)
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>{renderSemester(year3sem1, setYear3Sem1, 'Semester 1', year3sem1Weight, year3Weight)}</div>
-            <div>{renderSemester(year3sem2, setYear3Sem2, 'Semester 2', year3sem2Weight, year3Weight)}</div>
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setYear3Collapsed(!year3Collapsed)}>
+            <h2 className="text-2xl font-bold text-gray-800">Year 3</h2>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              {year3Collapsed ? <ChevronDown size={24} className="text-gray-600" /> : <ChevronUp size={24} className="text-gray-600" />}
+            </button>
           </div>
           
-          <div className="text-right text-lg font-bold text-indigo-600 mt-2">
-            Year 3 Score: {year3Score.toFixed(1)}%
-          </div>
-          {(() => {
-            const yearRequired = getYearRequiredScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
-            const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
-            // Also check if modules within semesters have valid weights
-            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
-            const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 60) < 0.5;
-            const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 60) < 0.5;
-            const areModuleWeightsValid = year3sem1ModulesValid && year3sem2ModulesValid;
-            
-            return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
-              <div className="text-right text-sm font-medium text-green-600">
-                {yearRequired > 100 ? (
-                  <span className="text-red-600">Target no longer achievable for this year</span>
-                ) : (
-                  <>Need {(() => {
-                    if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
-                    return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
-                  })()}% average in remaining assessments</>
-                )}
+          {!year3Collapsed && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
+                  <input
+                    type="number"
+                    value={year3sem1Weight}
+                    onChange={(e) => setYear3Sem1Weight(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 border rounded-md"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
+                  <input
+                    type="number"
+                    value={year3sem2Weight}
+                    onChange={(e) => setYear3Sem2Weight(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full px-3 py-2 border rounded-md"
+                    min="0"
+                    max="100"
+                  />
+                </div>
               </div>
-            );
-          })()}
+              {Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) >= 0.5 && (
+                <div className="mb-3 text-sm font-medium text-red-600">
+                  ⚠ Semester weights total: {getSemesterWeightTotal(year3sem1Weight, year3sem2Weight)}% (should be 100%)
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>{renderSemester(year3sem1, setYear3Sem1, 'Semester 1', year3sem1Weight, year3Weight)}</div>
+                <div>{renderSemester(year3sem2, setYear3Sem2, 'Semester 2', year3sem2Weight, year3Weight)}</div>
+              </div>
+              
+              <div className="text-right text-lg font-bold text-indigo-600 mt-2">
+                Year 3 Score: {year3Score.toFixed(1)}%
+              </div>
+              {(() => {
+                const yearRequired = getYearRequiredScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
+                const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
+                // Also check if modules within semesters have valid weights
+                const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+                const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 60) < 0.5;
+                const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 60) < 0.5;
+                const areModuleWeightsValid = year3sem1ModulesValid && year3sem2ModulesValid;
+                
+                return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
+                  <div className="text-right text-sm font-medium text-green-600">
+                    {yearRequired > 100 ? (
+                      <span className="text-red-600">Target no longer achievable for this year</span>
+                    ) : (
+                      <>Need {(() => {
+                        if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
+                        return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
+                      })()}% average in remaining assessments</>
+                    )}
+                  </div>
+                );
+              })()}
+            </>
+          )}
         </div>
 
         {/* Overall Results */}
