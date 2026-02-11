@@ -1,37 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, Plus, Trash2 } from 'lucide-react';
+import { Calculator, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function GradeGoal() {
   const emptyAssessment = () => ({ name: '', weight: '', score: '' });
   const emptyModule = () => ({ 
     name: '', 
-    weight: '', 
+    credits: '20',  // Changed from weight to credits, default 20
     assessments: [emptyAssessment(), emptyAssessment()]
   });
 
   const [targetScore, setTargetScore] = useState('70');
+  const [year1Weight, setYear1Weight] = useState('0');
   const [year2Weight, setYear2Weight] = useState('40');
   const [year3Weight, setYear3Weight] = useState('60');
   
+  const [year1sem1Weight, setYear1Sem1Weight] = useState('50');
+  const [year1sem2Weight, setYear1Sem2Weight] = useState('50');
   const [year2sem1Weight, setYear2Sem1Weight] = useState('50');
   const [year2sem2Weight, setYear2Sem2Weight] = useState('50');
   const [year3sem1Weight, setYear3Sem1Weight] = useState('50');
   const [year3sem2Weight, setYear3Sem2Weight] = useState('50');
   
+  const [year1sem1, setYear1Sem1] = useState([emptyModule(), emptyModule(), emptyModule()]);
+  const [year1sem2, setYear1Sem2] = useState([emptyModule(), emptyModule(), emptyModule()]);
   const [year2sem1, setYear2Sem1] = useState([emptyModule(), emptyModule(), emptyModule()]);
   const [year2sem2, setYear2Sem2] = useState([emptyModule(), emptyModule(), emptyModule()]);
   const [year3sem1, setYear3Sem1] = useState([emptyModule(), emptyModule(), emptyModule()]);
   const [year3sem2, setYear3Sem2] = useState([emptyModule(), emptyModule(), emptyModule()]);
 
+  // State for collapsible sections
+  const [year1Collapsed, setYear1Collapsed] = useState(true);
+  const [year2Collapsed, setYear2Collapsed] = useState(false);
+  const [year3Collapsed, setYear3Collapsed] = useState(false);
+
   const clearForm = () => {
     if (window.confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       setTargetScore('70');
+      setYear1Weight('0');
       setYear2Weight('40');
       setYear3Weight('60');
+      setYear1Sem1Weight('50');
+      setYear1Sem2Weight('50');
       setYear2Sem1Weight('50');
       setYear2Sem2Weight('50');
       setYear3Sem1Weight('50');
       setYear3Sem2Weight('50');
+      setYear1Sem1([emptyModule(), emptyModule(), emptyModule()]);
+      setYear1Sem2([emptyModule(), emptyModule(), emptyModule()]);
       setYear2Sem1([emptyModule(), emptyModule(), emptyModule()]);
       setYear2Sem2([emptyModule(), emptyModule(), emptyModule()]);
       setYear3Sem1([emptyModule(), emptyModule(), emptyModule()]);
@@ -62,12 +77,17 @@ export default function GradeGoal() {
       try {
         const data = JSON.parse(saved);
         setTargetScore(data.targetScore || '70');
+        setYear1Weight(data.year1Weight || '0');
         setYear2Weight(data.year2Weight || '40');
         setYear3Weight(data.year3Weight || '60');
+        setYear1Sem1Weight(data.year1sem1Weight || '50');
+        setYear1Sem2Weight(data.year1sem2Weight || '50');
         setYear2Sem1Weight(data.year2sem1Weight || '50');
         setYear2Sem2Weight(data.year2sem2Weight || '50');
         setYear3Sem1Weight(data.year3sem1Weight || '50');
         setYear3Sem2Weight(data.year3sem2Weight || '50');
+        setYear1Sem1(data.year1sem1 || [emptyModule(), emptyModule(), emptyModule()]);
+        setYear1Sem2(data.year1sem2 || [emptyModule(), emptyModule(), emptyModule()]);
         setYear2Sem1(data.year2sem1 || [emptyModule(), emptyModule(), emptyModule()]);
         setYear2Sem2(data.year2sem2 || [emptyModule(), emptyModule(), emptyModule()]);
         setYear3Sem1(data.year3sem1 || [emptyModule(), emptyModule(), emptyModule()]);
@@ -82,20 +102,26 @@ export default function GradeGoal() {
   useEffect(() => {
     const data = {
       targetScore,
+      year1Weight,
       year2Weight,
       year3Weight,
+      year1sem1Weight,
+      year1sem2Weight,
       year2sem1Weight,
       year2sem2Weight,
       year3sem1Weight,
       year3sem2Weight,
+      year1sem1,
+      year1sem2,
       year2sem1,
       year2sem2,
       year3sem1,
       year3sem2
     };
     localStorage.setItem('gradeGoalData', JSON.stringify(data));
-  }, [targetScore, year2Weight, year3Weight, year2sem1Weight, year2sem2Weight, 
-      year3sem1Weight, year3sem2Weight, year2sem1, year2sem2, year3sem1, year3sem2]);
+  }, [targetScore, year1Weight, year2Weight, year3Weight, 
+      year1sem1Weight, year1sem2Weight, year2sem1Weight, year2sem2Weight, 
+      year3sem1Weight, year3sem2Weight, year1sem1, year1sem2, year2sem1, year2sem2, year3sem1, year3sem2]);
 
   const updateModule = (setter, modules, moduleIdx, field, value) => {
     const newModules = [...modules];
@@ -152,21 +178,31 @@ export default function GradeGoal() {
   };
 
   const calculateSemesterScore = (modules) => {
-    let totalWeight = 0;
+    let totalCredits = 0;
     let weightedScore = 0;
     
+    // Calculate total credits entered
+    const enteredCredits = modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+    
     modules.forEach(module => {
-      const moduleWeight = parseFloat(module.weight) || 0;
+      let moduleCredits = parseFloat(module.credits) || 0;
+      
+      // If no credits entered anywhere, assume equal distribution
+      if (enteredCredits === 0 && modules.length > 0) {
+        moduleCredits = 120 / modules.length;
+      }
+      
       const moduleScore = calculateModuleScore(module);
-      totalWeight += moduleWeight;
+      const moduleWeight = (moduleCredits / 120) * 100; // Convert credits to %
+      totalCredits += moduleCredits;
       weightedScore += (moduleScore * moduleWeight / 100);
     });
     
-    return totalWeight > 0 ? weightedScore / totalWeight * 100 : 0;
+    return totalCredits > 0 ? weightedScore / totalCredits * 100 : 0;
   };
 
-  const getModuleWeightTotal = (modules) => {
-    return modules.reduce((sum, module) => sum + (parseFloat(module.weight) || 0), 0);
+  const getModuleCreditsTotal = (modules) => {
+    return modules.reduce((sum, module) => sum + (parseFloat(module.credits) || 0), 0);
   };
 
   const calculateYearScore = (sem1Modules, sem2Modules, sem1Weight, sem2Weight) => {
@@ -184,17 +220,19 @@ export default function GradeGoal() {
   };
 
   const getYearWeightTotal = () => {
-    return (parseFloat(year2Weight) || 0) + (parseFloat(year3Weight) || 0);
+    return (parseFloat(year1Weight) || 0) + (parseFloat(year2Weight) || 0) + (parseFloat(year3Weight) || 0);
   };
 
   const calculateOverallScore = () => {
+    const year1Score = calculateYearScore(year1sem1, year1sem2, year1sem1Weight, year1sem2Weight);
     const year2Score = calculateYearScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
     const year3Score = calculateYearScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
+    const w1 = parseFloat(year1Weight) || 0;
     const w2 = parseFloat(year2Weight) || 0;
     const w3 = parseFloat(year3Weight) || 0;
     
-    if (w2 + w3 === 0) return 0;
-    return (year2Score * w2 + year3Score * w3) / (w2 + w3);
+    if (w1 + w2 + w3 === 0) return 0;
+    return (year1Score * w1 + year2Score * w2 + year3Score * w3) / (w1 + w2 + w3);
   };
 
   const calculateRequiredScore = () => {
@@ -399,13 +437,13 @@ export default function GradeGoal() {
           />
           <input
             type="number"
-            placeholder="% of sem"
-            value={module.weight}
-            onChange={(e) => updateModule(setter, modules, moduleIdx, 'weight', e.target.value)}
+            placeholder="Credits"
+            value={module.credits}
+            onChange={(e) => updateModule(setter, modules, moduleIdx, 'credits', e.target.value)}
             onKeyDown={handleKeyDown}
             className="w-24 px-2 py-1 border rounded text-sm"
             min="0"
-            max="100"
+            max="120"
           />
           <button
             onClick={() => removeModule(setter, modules, moduleIdx)}
@@ -493,8 +531,8 @@ export default function GradeGoal() {
 
   const renderSemester = (modules, setter, semesterName, semWeight, yearWeight) => {
     const semScore = calculateSemesterScore(modules);
-    const moduleWeightTotal = getModuleWeightTotal(modules);
-    const isModuleWeightValid = Math.abs(moduleWeightTotal - 100) < 0.5;
+    const moduleCreditsTotal = getModuleCreditsTotal(modules);
+    const isModuleCreditsValid = Math.abs(moduleCreditsTotal - 120) < 0.5;
     
     // Check if all modules have valid assessment weights
     const allModulesHaveValidWeights = modules.every(module => {
@@ -518,7 +556,7 @@ export default function GradeGoal() {
           <div className="text-sm font-medium text-blue-600">
             Semester Score: {semScore.toFixed(1)}%
           </div>
-          {requiredScore !== null && isModuleWeightValid && allModulesHaveValidWeights && (
+          {requiredScore !== null && isModuleCreditsValid && allModulesHaveValidWeights && (
             <div className="text-sm font-medium text-green-600">
               {requiredScore > 100 ? (
                 <span className="text-red-600">Target no longer achievable for this semester</span>
@@ -530,9 +568,9 @@ export default function GradeGoal() {
               )}
             </div>
           )}
-          {!isModuleWeightValid && (
+          {!isModuleCreditsValid && (
             <div className="text-sm font-medium text-red-600">
-              ⚠ Module weights: {moduleWeightTotal.toFixed(1)}% (should be 100%)
+              ⚠ Module credits: {moduleCreditsTotal.toFixed(0)} (should be 120)
             </div>
           )}
         </div>
@@ -551,9 +589,19 @@ export default function GradeGoal() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 md:p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-3 md:p-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Calculator className="text-indigo-600" size={32} />
-            <h1 className="text-3xl font-bold text-gray-800">GradeGoal</h1>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Calculator className="text-indigo-600" size={32} />
+              <h1 className="text-3xl font-bold text-gray-800">GradeGoal</h1>
+            </div>
+            <p className="text-sm text-gray-600 ml-11">University Grade Calculator. Calculate your required scores to achieve your target degree classification.</p>
+            <div className="text-xs text-gray-500 ml-11 mt-1 flex flex-wrap gap-3">
+              <span>70%+ = First Class</span>
+              <span>60-69% = 2:1</span>
+              <span>50-59% = 2:2</span>
+              <span>40-49% = Third Class</span>
+              <span>&lt;40% = Fail</span>
+            </div>
           </div>
           <button
             onClick={clearForm}
@@ -565,13 +613,25 @@ export default function GradeGoal() {
 
         {/* Target and Year Weights */}
         <div className="bg-indigo-50 p-4 rounded-lg mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Target Overall %</label>
               <input
                 type="number"
                 value={targetScore}
                 onChange={(e) => setTargetScore(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full px-3 py-2 border border-indigo-300 rounded-md"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Year 1 Weight %</label>
+              <input
+                type="number"
+                value={year1Weight}
+                onChange={(e) => setYear1Weight(e.target.value)}
                 onKeyDown={handleKeyDown}
                 className="w-full px-3 py-2 border border-indigo-300 rounded-md"
                 min="0"
@@ -608,6 +668,52 @@ export default function GradeGoal() {
               ⚠ Year weights total: {getYearWeightTotal()}% (should be 100%)
             </div>
           )}
+        </div>
+
+        {/* Year 1 */}
+        <div className="border border-gray-300 rounded-lg p-4 mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Year 1</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
+              <input
+                type="number"
+                value={year1sem1Weight}
+                onChange={(e) => setYear1Sem1Weight(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full px-3 py-2 border rounded-md"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
+              <input
+                type="number"
+                value={year1sem2Weight}
+                onChange={(e) => setYear1Sem2Weight(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full px-3 py-2 border rounded-md"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+          {Math.abs(getSemesterWeightTotal(year1sem1Weight, year1sem2Weight) - 100) >= 0.5 && (
+            <div className="mb-3 text-sm font-medium text-red-600">
+              ⚠ Semester weights total: {getSemesterWeightTotal(year1sem1Weight, year1sem2Weight)}% (should be 100%)
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>{renderSemester(year1sem1, setYear1Sem1, 'Semester 1', year1sem1Weight, year1Weight)}</div>
+            <div>{renderSemester(year1sem2, setYear1Sem2, 'Semester 2', year1sem2Weight, year1Weight)}</div>
+          </div>
+          
+          <div className="text-right text-lg font-bold text-indigo-600 mt-2">
+            Year 1 Score: {calculateYearScore(year1sem1, year1sem2, year1sem1Weight, year1sem2Weight).toFixed(1)}%
+          </div>
         </div>
 
         {/* Year 2 */}
@@ -658,9 +764,9 @@ export default function GradeGoal() {
             const yearRequired = getYearRequiredScore(year2sem1, year2sem2, year2sem1Weight, year2sem2Weight);
             const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) < 0.5;
             // Also check if modules within semesters have valid weights
-            const getModuleWeightTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.weight) || 0), 0);
-            const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleWeightTotal(year2sem1) - 100) < 0.5;
-            const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleWeightTotal(year2sem2) - 100) < 0.5;
+            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+            const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 120) < 0.5;
+            const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 120) < 0.5;
             const areModuleWeightsValid = year2sem1ModulesValid && year2sem2ModulesValid;
             
             return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
@@ -726,9 +832,9 @@ export default function GradeGoal() {
             const yearRequired = getYearRequiredScore(year3sem1, year3sem2, year3sem1Weight, year3sem2Weight);
             const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) < 0.5;
             // Also check if modules within semesters have valid weights
-            const getModuleWeightTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.weight) || 0), 0);
-            const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleWeightTotal(year3sem1) - 100) < 0.5;
-            const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleWeightTotal(year3sem2) - 100) < 0.5;
+            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+            const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 120) < 0.5;
+            const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 120) < 0.5;
             const areModuleWeightsValid = year3sem1ModulesValid && year3sem2ModulesValid;
             
             return yearRequired !== null && isSemesterWeightValid && areModuleWeightsValid && (
@@ -781,11 +887,11 @@ export default function GradeGoal() {
                 <div className="text-lg font-medium text-yellow-300">
                   {(() => {
                     // Additional checks for "not achievable" message
-                    const getModuleWeightTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.weight) || 0), 0);
-                    const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleWeightTotal(year2sem1) - 100) < 0.5;
-                    const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleWeightTotal(year2sem2) - 100) < 0.5;
-                    const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleWeightTotal(year3sem1) - 100) < 0.5;
-                    const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleWeightTotal(year3sem2) - 100) < 0.5;
+                    const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+                    const year2sem1ModulesValid = year2sem1.length === 0 || Math.abs(getModuleCreditsTotal(year2sem1) - 120) < 0.5;
+                    const year2sem2ModulesValid = year2sem2.length === 0 || Math.abs(getModuleCreditsTotal(year2sem2) - 120) < 0.5;
+                    const year3sem1ModulesValid = year3sem1.length === 0 || Math.abs(getModuleCreditsTotal(year3sem1) - 120) < 0.5;
+                    const year3sem2ModulesValid = year3sem2.length === 0 || Math.abs(getModuleCreditsTotal(year3sem2) - 120) < 0.5;
                     
                     const hasData = overallScore > 0;
                     const structureComplete = year2sem1ModulesValid && year2sem2ModulesValid && 
