@@ -114,6 +114,7 @@ export default function GradeGoal() {
         console.error('Error loading saved data:', e);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save data to localStorage whenever it changes
