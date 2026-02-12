@@ -216,7 +216,7 @@ export default function GradeGoal() {
       weightedScore += (moduleScore * moduleWeight / 100);
     });
     
-    return totalCredits > 0 ? weightedScore / totalCredits * 100 : 0;
+    return totalCredits > 0 ? weightedScore : 0;
   };
 
   const getModuleCreditsTotal = (modules) => {
