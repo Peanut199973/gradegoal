@@ -608,7 +608,7 @@ export default function GradeGoal() {
     return (
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h4 className="font-medium text-sm text-gray-700">{semesterName}</h4>
+          <h4 className="font-medium text-base text-gray-700">{semesterName}</h4>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -662,11 +662,9 @@ export default function GradeGoal() {
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-3 md:p-6">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="GradeGoal" className="h-20" />
-              <div>
-                <p className="text-sm text-gray-600">Calculate your required scores to achieve your target degree classification</p>
-              </div>
+            <div className="flex flex-col items-start gap-2">
+              <img src={logo} alt="GradeGoal" className="h-30" style={{height: '120px'}} />
+              <p className="text-sm text-gray-600">Calculate the required scores to achieve your target degree classification</p>
             </div>
             <button
               onClick={clearForm}
@@ -697,7 +695,7 @@ export default function GradeGoal() {
                 <div className="text-gray-600">40-49%</div>
               </div>
               <div className="bg-white rounded px-3 py-2 text-center border border-indigo-100">
-                <div className="font-bold text-red-600">Fail</div>
+                <div className="font-bold text-indigo-600">Fail</div>
                 <div className="text-gray-600">&lt;40%</div>
               </div>
             </div>
@@ -714,7 +712,7 @@ export default function GradeGoal() {
                 value={targetScore}
                 onChange={(e) => setTargetScore(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border border-indigo-300 rounded-md"
+                className="w-full px-3 py-2 border border-indigo-100 rounded-md"
                 min="0"
                 max="100"
               />
@@ -726,7 +724,7 @@ export default function GradeGoal() {
                 value={year1Weight}
                 onChange={(e) => setYear1Weight(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border border-indigo-300 rounded-md"
+                className="w-full px-3 py-2 border border-indigo-100 rounded-md"
                 min="0"
                 max="100"
               />
@@ -738,7 +736,7 @@ export default function GradeGoal() {
                 value={year2Weight}
                 onChange={(e) => setYear2Weight(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border border-indigo-300 rounded-md"
+                className="w-full px-3 py-2 border border-indigo-100 rounded-md"
                 min="0"
                 max="100"
               />
@@ -750,7 +748,7 @@ export default function GradeGoal() {
                 value={year3Weight}
                 onChange={(e) => setYear3Weight(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-3 py-2 border border-indigo-300 rounded-md"
+                className="w-full px-3 py-2 border border-indigo-100 rounded-md"
                 min="0"
                 max="100"
               />
