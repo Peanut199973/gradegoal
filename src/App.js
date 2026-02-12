@@ -663,7 +663,7 @@ export default function GradeGoal() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="GradeGoal" className="h-12" />
+              <img src={logo} alt="GradeGoal" className="h-20" />
               <div>
                 <p className="text-sm text-gray-600">Calculate your required scores to achieve your target degree classification</p>
               </div>
@@ -802,6 +802,27 @@ export default function GradeGoal() {
           <div className="text-right text-lg font-bold text-indigo-600 mt-2">
             Year 1 Score: {calculateYearScore(year1sem1, year1sem2, year1sem1Weight, year1sem2Weight).toFixed(1)}%
           </div>
+          {(() => {
+            const yearRequired = getYearRequiredScore(year1sem1, year1sem2, year1sem1Weight, year1sem2Weight);
+            const isSemesterWeightValid = Math.abs(getSemesterWeightTotal(year1sem1Weight, year1sem2Weight) - 100) < 0.5;
+            // Check if year has valid total credits (120)
+            const getModuleCreditsTotal = (modules) => modules.reduce((sum, m) => sum + (parseFloat(m.credits) || 0), 0);
+            const year1TotalCredits = getModuleCreditsTotal(year1sem1) + getModuleCreditsTotal(year1sem2);
+            const areYearCreditsValid = year1sem1.length === 0 || year1sem2.length === 0 || Math.abs(year1TotalCredits - 120) < 0.5;
+            
+            return yearRequired !== null && isSemesterWeightValid && areYearCreditsValid && (
+              <div className="text-right text-sm font-medium text-green-600">
+                {yearRequired > 100 ? (
+                  <span className="text-red-600">Target no longer achievable for this year</span>
+                ) : (
+                  <>Need {(() => {
+                    if (Math.abs(yearRequired - target) < 0.2) return target.toFixed(1);
+                    return (Math.ceil(yearRequired * 10) / 10).toFixed(1);
+                  })()}% average in remaining assessments</>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Year 2 */}
@@ -992,7 +1013,7 @@ export default function GradeGoal() {
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
           <p>
-            Have feedback or questions? <a href="mailto:Peanut_1999@sky.com" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
+            Have feedback or questions? <a href="mailto:Peanut_1999@sky.com?subject=GradeGoal%20Feedback" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
           </p>
         </div>
       </div>
