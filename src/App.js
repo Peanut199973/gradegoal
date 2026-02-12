@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import logo from './gradegoal-logo.png';
 
 export default function GradeGoal() {
   const emptyAssessment = () => ({ name: '', weight: '50', score: '' });
@@ -629,9 +630,8 @@ export default function GradeGoal() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <Calculator className="text-indigo-600" size={36} />
+              <img src={logo} alt="GradeGoal" className="h-12" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">GradeGoal</h1>
                 <p className="text-sm text-gray-600">Calculate your required scores to achieve your target degree classification</p>
               </div>
             </div>
