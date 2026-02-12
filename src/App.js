@@ -607,7 +607,6 @@ export default function GradeGoal() {
             </div>
           )}
         </div>
-        </div>
       </div>
     );
   };
