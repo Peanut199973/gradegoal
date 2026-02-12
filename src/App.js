@@ -29,10 +29,32 @@ export default function GradeGoal() {
   const [year3sem1, setYear3Sem1] = useState([emptyModule(), emptyModule(), emptyModule()]);
   const [year3sem2, setYear3Sem2] = useState([emptyModule(), emptyModule(), emptyModule()]);
 
-  // State for collapsible sections
-  const [year1Collapsed, setYear1Collapsed] = useState(true);
-  const [year2Collapsed, setYear2Collapsed] = useState(false);
-  const [year3Collapsed, setYear3Collapsed] = useState(false);
+  // State for collapsible sections - load from localStorage, default all closed
+  const [year1Collapsed, setYear1Collapsed] = useState(() => {
+    const saved = localStorage.getItem('year1Collapsed');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [year2Collapsed, setYear2Collapsed] = useState(() => {
+    const saved = localStorage.getItem('year2Collapsed');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [year3Collapsed, setYear3Collapsed] = useState(() => {
+    const saved = localStorage.getItem('year3Collapsed');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Save collapsed states to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('year1Collapsed', JSON.stringify(year1Collapsed));
+  }, [year1Collapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('year2Collapsed', JSON.stringify(year2Collapsed));
+  }, [year2Collapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('year3Collapsed', JSON.stringify(year3Collapsed));
+  }, [year3Collapsed]);
 
   const clearForm = () => {
     if (window.confirm('Are you sure you want to clear all data? This cannot be undone.')) {
@@ -52,6 +74,9 @@ export default function GradeGoal() {
       setYear2Sem2([emptyModule(), emptyModule(), emptyModule()]);
       setYear3Sem1([emptyModule(), emptyModule(), emptyModule()]);
       setYear3Sem2([emptyModule(), emptyModule(), emptyModule()]);
+      setYear1Collapsed(true);
+      setYear2Collapsed(true);
+      setYear3Collapsed(true);
       localStorage.removeItem('gradeGoalData');
     }
   };
@@ -568,7 +593,7 @@ export default function GradeGoal() {
     );
   };
 
-  const renderSemester = (modules, setter, semesterName, semWeight, yearWeight) => {
+  const renderSemester = (modules, setter, semesterName, semWeight, yearWeight, semWeightSetter) => {
     const semScore = calculateSemesterScore(modules);
     const moduleCreditsTotal = getModuleCreditsTotal(modules);
     
@@ -582,7 +607,21 @@ export default function GradeGoal() {
 
     return (
       <div>
-        <h4 className="font-medium text-sm text-gray-700 mb-2">{semesterName}</h4>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-medium text-sm text-gray-700">{semesterName}</h4>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              value={semWeight}
+              onChange={(e) => semWeightSetter(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-16 px-2 py-1 border rounded-md text-sm text-center"
+              min="0"
+              max="100"
+            />
+            <span className="text-sm text-gray-600">% of year</span>
+          </div>
+        </div>
         {modules.map((module, idx) => renderModule(module, idx, modules, setter, semesterName, semWeight, yearWeight))}
         <button
           onClick={() => addModule(setter, modules)}
@@ -735,32 +774,6 @@ export default function GradeGoal() {
           
           {!year1Collapsed && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
-                  <input
-                    type="number"
-                    value={year1sem1Weight}
-                    onChange={(e) => setYear1Sem1Weight(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border rounded-md"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
-                  <input
-                    type="number"
-                    value={year1sem2Weight}
-                    onChange={(e) => setYear1Sem2Weight(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border rounded-md"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-              </div>
               {Math.abs(getSemesterWeightTotal(year1sem1Weight, year1sem2Weight) - 100) >= 0.5 && (
                 <div className="mb-3 text-sm font-medium text-red-600">
                   ⚠ Semester weights total: {getSemesterWeightTotal(year1sem1Weight, year1sem2Weight)}% (should be 100%)
@@ -768,8 +781,8 @@ export default function GradeGoal() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>{renderSemester(year1sem1, setYear1Sem1, 'Semester 1', year1sem1Weight, year1Weight)}</div>
-                <div>{renderSemester(year1sem2, setYear1Sem2, 'Semester 2', year1sem2Weight, year1Weight)}</div>
+                <div>{renderSemester(year1sem1, setYear1Sem1, 'Semester 1', year1sem1Weight, year1Weight, setYear1Sem1Weight)}</div>
+                <div>{renderSemester(year1sem2, setYear1Sem2, 'Semester 2', year1sem2Weight, year1Weight, setYear1Sem2Weight)}</div>
               </div>
               
               {(() => {
@@ -802,32 +815,6 @@ export default function GradeGoal() {
           
           {!year2Collapsed && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
-                  <input
-                    type="number"
-                    value={year2sem1Weight}
-                    onChange={(e) => setYear2Sem1Weight(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border rounded-md"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
-                  <input
-                    type="number"
-                    value={year2sem2Weight}
-                    onChange={(e) => setYear2Sem2Weight(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border rounded-md"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-              </div>
               {Math.abs(getSemesterWeightTotal(year2sem1Weight, year2sem2Weight) - 100) >= 0.5 && (
                 <div className="mb-3 text-sm font-medium text-red-600">
                   ⚠ Semester weights total: {getSemesterWeightTotal(year2sem1Weight, year2sem2Weight)}% (should be 100%)
@@ -835,8 +822,8 @@ export default function GradeGoal() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>{renderSemester(year2sem1, setYear2Sem1, 'Semester 1', year2sem1Weight, year2Weight)}</div>
-                <div>{renderSemester(year2sem2, setYear2Sem2, 'Semester 2', year2sem2Weight, year2Weight)}</div>
+                <div>{renderSemester(year2sem1, setYear2Sem1, 'Semester 1', year2sem1Weight, year2Weight, setYear2Sem1Weight)}</div>
+                <div>{renderSemester(year2sem2, setYear2Sem2, 'Semester 2', year2sem2Weight, year2Weight, setYear2Sem2Weight)}</div>
               </div>
               
               {(() => {
@@ -890,32 +877,6 @@ export default function GradeGoal() {
           
           {!year3Collapsed && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 1 % of Year</label>
-                  <input
-                    type="number"
-                    value={year3sem1Weight}
-                    onChange={(e) => setYear3Sem1Weight(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border rounded-md"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester 2 % of Year</label>
-                  <input
-                    type="number"
-                    value={year3sem2Weight}
-                    onChange={(e) => setYear3Sem2Weight(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-3 py-2 border rounded-md"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-              </div>
               {Math.abs(getSemesterWeightTotal(year3sem1Weight, year3sem2Weight) - 100) >= 0.5 && (
                 <div className="mb-3 text-sm font-medium text-red-600">
                   ⚠ Semester weights total: {getSemesterWeightTotal(year3sem1Weight, year3sem2Weight)}% (should be 100%)
@@ -923,8 +884,8 @@ export default function GradeGoal() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>{renderSemester(year3sem1, setYear3Sem1, 'Semester 1', year3sem1Weight, year3Weight)}</div>
-                <div>{renderSemester(year3sem2, setYear3Sem2, 'Semester 2', year3sem2Weight, year3Weight)}</div>
+                <div>{renderSemester(year3sem1, setYear3Sem1, 'Semester 1', year3sem1Weight, year3Weight, setYear3Sem1Weight)}</div>
+                <div>{renderSemester(year3sem2, setYear3Sem2, 'Semester 2', year3sem2Weight, year3Weight, setYear3Sem2Weight)}</div>
               </div>
               
               {(() => {
@@ -1031,7 +992,7 @@ export default function GradeGoal() {
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
           <p>
-            Have feedback or questions? <a href="mailto:feedback.gradegoal@gmail.com" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
+            Have feedback or questions? <a href="mailto:Peanut_1999@sky.com" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
           </p>
         </div>
       </div>
