@@ -1000,6 +1000,13 @@ export default function GradeGoal() {
             );
           })()}
         </div>
+        
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
+          <p>
+            Have feedback or questions? <a href="mailto:feedback@gradegoal.co.uk" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
+          </p>
+        </div>
       </div>
     </div>
   );
