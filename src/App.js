@@ -484,14 +484,14 @@ export default function GradeGoal() {
 
     return (
       <div key={moduleIdx} className="border border-gray-200 rounded-lg p-3 mb-3 bg-gray-50">
-        <div className="flex gap-2 items-center mb-2">
+        <div className="flex gap-1 sm:gap-2 items-center mb-2">
           <input
             type="text"
             placeholder="Module name"
             value={module.name}
             onChange={(e) => updateModule(setter, modules, moduleIdx, 'name', e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 px-2 py-1 border rounded text-sm"
+            className="flex-1 min-w-0 px-2 py-1 border rounded text-sm"
           />
           <div className="flex items-center gap-1">
             <input
@@ -500,7 +500,7 @@ export default function GradeGoal() {
               value={module.credits}
               onChange={(e) => updateModule(setter, modules, moduleIdx, 'credits', e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-20 px-2 py-1 border rounded text-sm"
+              className="w-14 sm:w-20 px-1 sm:px-2 py-1 border rounded text-sm"
               min="0"
               max="120"
             />
@@ -508,7 +508,7 @@ export default function GradeGoal() {
           </div>
           <button
             onClick={() => removeModule(setter, modules, moduleIdx)}
-            className="p-1 text-gray-500 hover:bg-gray-100 rounded"
+            className="p-1 text-gray-500 hover:bg-gray-100 rounded flex-shrink-0"
             title="Remove module"
           >
             <Trash2 size={16} />
@@ -517,14 +517,14 @@ export default function GradeGoal() {
 
         <div className="space-y-1 ml-4">
           {module.assessments.map((assessment, assessmentIdx) => (
-            <div key={assessmentIdx} className="flex gap-2 items-center">
+            <div key={assessmentIdx} className="flex gap-1 sm:gap-2 items-center">
               <input
                 type="text"
                 placeholder="Assessment name"
                 value={assessment.name}
                 onChange={(e) => updateAssessment(setter, modules, moduleIdx, assessmentIdx, 'name', e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="flex-1 px-2 py-1 border rounded text-xs bg-white"
+                className="flex-1 min-w-0 px-2 py-1 border rounded text-xs bg-white"
               />
               <div className="flex items-center gap-1">
                 <input
@@ -533,7 +533,7 @@ export default function GradeGoal() {
                   value={assessment.weight}
                   onChange={(e) => updateAssessment(setter, modules, moduleIdx, assessmentIdx, 'weight', e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-16 px-2 py-1 border rounded text-xs bg-white"
+                  className="w-12 sm:w-16 px-1 sm:px-2 py-1 border rounded text-xs bg-white"
                   min="0"
                   max="100"
                 />
@@ -545,13 +545,13 @@ export default function GradeGoal() {
                 value={assessment.score}
                 onChange={(e) => updateAssessment(setter, modules, moduleIdx, assessmentIdx, 'score', e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-20 px-2 py-1 border rounded text-xs bg-white"
+                className="w-14 sm:w-20 px-1 sm:px-2 py-1 border rounded text-xs bg-white"
                 min="0"
                 max="100"
               />
               <button
                 onClick={() => removeAssessment(setter, modules, moduleIdx, assessmentIdx)}
-                className="p-1 text-gray-500 hover:bg-gray-100 rounded"
+                className="p-1 text-gray-500 hover:bg-gray-100 rounded flex-shrink-0"
                 title="Remove assessment"
               >
                 <Trash2 size={16} />
@@ -608,18 +608,18 @@ export default function GradeGoal() {
     return (
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h4 className="font-medium text-base text-gray-700">{semesterName}</h4>
-          <div className="flex items-center gap-2">
+          <h4 className="font-medium text-sm sm:text-base text-gray-700">{semesterName}</h4>
+          <div className="flex items-center gap-1 sm:gap-2">
             <input
               type="number"
               value={semWeight}
               onChange={(e) => semWeightSetter(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-16 px-2 py-1 border rounded-md text-sm text-center"
+              className="w-12 sm:w-16 px-1 sm:px-2 py-1 border rounded-md text-sm text-center"
               min="0"
               max="100"
             />
-            <span className="text-sm text-gray-600">% of year</span>
+            <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">% of year</span>
           </div>
         </div>
         {modules.map((module, idx) => renderModule(module, idx, modules, setter, semesterName, semWeight, yearWeight))}
@@ -663,12 +663,12 @@ export default function GradeGoal() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex flex-col items-start gap-2">
-              <img src={logo} alt="GradeGoal" className="h-30" style={{height: '120px'}} />
+              <img src={logo} alt="GradeGoal" className="h-20 sm:h-30" style={{maxHeight: '120px'}} />
               <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-600">Calculate the required scores to achieve your target degree classification</p>
+                <p className="text-xs sm:text-sm text-gray-600">Calculate the required scores to achieve your target degree classification</p>
                 <div className="relative group">
-                  <Info size={16} className="text-indigo-600 cursor-help" />
-                  <div className="absolute left-0 top-6 w-80 bg-white border border-indigo-200 rounded-lg shadow-lg p-4 text-xs text-gray-700 invisible group-hover:visible z-10">
+                  <Info size={16} className="text-indigo-600 cursor-help flex-shrink-0" />
+                  <div className="absolute left-0 top-6 w-72 sm:w-80 bg-white border border-indigo-200 rounded-lg shadow-lg p-4 text-xs text-gray-700 invisible group-hover:visible z-10 max-w-[calc(100vw-2rem)]">
                     <p className="font-semibold mb-2 text-indigo-600">How to use GradeGoal:</p>
                     <ol className="list-decimal list-inside space-y-1">
                       <li>Set your <strong>target percentage</strong> (e.g., 70% for First Class)</li>
@@ -685,9 +685,10 @@ export default function GradeGoal() {
             </div>
             <button
               onClick={clearForm}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300 shadow-sm"
+              className="px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300 shadow-sm whitespace-nowrap"
             >
-              Clear All Data
+              <span className="hidden sm:inline">Clear All Data</span>
+              <span className="sm:hidden">Clear</span>
             </button>
           </div>
           
@@ -779,7 +780,7 @@ export default function GradeGoal() {
         </div>
 
         {/* Year 1 */}
-        <div className="border border-gray-300 rounded-lg p-4 mb-6">
+        <div className="border border-gray-300 rounded-lg p-2 sm:p-4 mb-6 overflow-hidden">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setYear1Collapsed(!year1Collapsed)}>
             <h2 className="text-2xl font-bold text-gray-800">Year 1</h2>
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -841,7 +842,7 @@ export default function GradeGoal() {
         </div>
 
         {/* Year 2 */}
-        <div className="border border-gray-300 rounded-lg p-4 mb-6">
+        <div className="border border-gray-300 rounded-lg p-2 sm:p-4 mb-6 overflow-hidden">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setYear2Collapsed(!year2Collapsed)}>
             <h2 className="text-2xl font-bold text-gray-800">Year 2</h2>
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -903,7 +904,7 @@ export default function GradeGoal() {
         </div>
 
         {/* Year 3 */}
-        <div className="border border-gray-300 rounded-lg p-4 mb-6">
+        <div className="border border-gray-300 rounded-lg p-2 sm:p-4 mb-6 overflow-hidden">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setYear3Collapsed(!year3Collapsed)}>
             <h2 className="text-2xl font-bold text-gray-800">Year 3</h2>
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
