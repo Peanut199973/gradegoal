@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import logo from './gradegoal-logo.png';
 
 export default function GradeGoal() {
@@ -664,7 +664,24 @@ export default function GradeGoal() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex flex-col items-start gap-2">
               <img src={logo} alt="GradeGoal" className="h-30" style={{height: '120px'}} />
-              <p className="text-sm text-gray-600">Calculate the required scores to achieve your target degree classification</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-gray-600">Calculate the required scores to achieve your target degree classification</p>
+                <div className="relative group">
+                  <Info size={16} className="text-indigo-600 cursor-help" />
+                  <div className="absolute left-0 top-6 w-80 bg-white border border-indigo-200 rounded-lg shadow-lg p-4 text-xs text-gray-700 invisible group-hover:visible z-10">
+                    <p className="font-semibold mb-2 text-indigo-600">How to use GradeGoal:</p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>Set your <strong>target percentage</strong> (e.g., 70% for First Class)</li>
+                      <li>Set <strong>year weights</strong> (typically: Year 1 = 0%, Year 2 = 40%, Year 3 = 60%)</li>
+                      <li>For each year, set <strong>semester weights</strong> (usually 50% / 50%)</li>
+                      <li>Enter your <strong>modules</strong> with credits (e.g., 20 credits per module, 120 per year)</li>
+                      <li>Add <strong>assessments</strong> with their weights (must total 100% per module)</li>
+                      <li>Fill in <strong>scores</strong> for completed assessments</li>
+                      <li>The calculator shows what you need in remaining assessments to hit your target!</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
             </div>
             <button
               onClick={clearForm}
