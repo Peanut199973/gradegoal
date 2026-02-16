@@ -1029,7 +1029,7 @@ export default function GradeGoal() {
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
           <p>
-            Have feedback or questions? <a href="mailto:Peanut_1999@sky.com?subject=GradeGoal%20Feedback" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
+            Have feedback or questions? <a href="mailto:feedback.gradegoal@gmail.com?subject=GradeGoal%20Feedback" className="text-indigo-600 hover:text-indigo-800 underline">Contact us</a>
           </p>
         </div>
       </div>
